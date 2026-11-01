@@ -1,5 +1,15 @@
 # CODA-19 – Segmentierung und Klassifikation wissenschaftlicher Abstracts mit Qwen3.5-4B
 
+## Summary (English)
+
+This project fine-tunes Qwen3.5-4B with QLoRA to analyse scientific abstracts as running text: the model splits each abstract into segments on its own, assigns every segment one of five research aspects (background, purpose, method, finding, other) and justifies each label with a reference to the matching rule in a codebook. The data comes from CODA-19 (Huang et al., 2020), around 11,000 English abstracts from the COVID-19 Open Research Dataset, annotated by crowd workers with nine annotators per abstract and labels set by majority vote. Segments and labels were kept unchanged; the codebook references were added with DeepSeek, which received the fixed human label and only selected the matching rule.
+
+On 400 held-out test abstracts with 5,645 segments, the fine-tuned model classifies 88.2% of the segments correctly, compared with 76.1% for the base model, which halves the error rate. When segment boundaries and label must both match, the fine-tuned model reaches 87.4% against 22.7% for the base model, reproduces the segment text verbatim in all 400 abstracts and produces no invalid output. The test abstracts were never trained on, but their eval loss was tracked during training and the checkpoint with the lowest value was selected. The results were therefore confirmed on a separate dev set that played no role in training or checkpoint selection: there, the fine-tuned model reaches 86.6% against 78.9% for the base model with its best prompt variant, and 85.7% against 26.6% when boundaries are included.
+
+As is common with crowd-annotated data, the gold labels contain some noise: according to the original study, crowd labels agree with experts on 82.2% of segments, and experts agree with each other on 85.0%. The remaining errors lie mostly between neighbouring aspects, and in a manual sample some of the model's predictions are more plausible than the gold label (section 5). Training ran on a rented RTX 3090 for about 22 hours with LoRA rank 96 and alpha 192; the evaluated checkpoint is step 1,375. The full documentation, including data preparation, evaluation and error analysis, follows below in German.
+
+---
+
 **Kurzfassung**
 
 - **Aufgabe:** Qwen3.5-4B (QLoRA) erhält ein wissenschaftliches Abstract als Fließtext, zerlegt es selbst in Segmente, ordnet jedes einem von fünf Forschungsaspekten zu und verweist auf die passende Codebuch-Stelle.
